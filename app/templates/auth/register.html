@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Signup</h1>
+
+
+{% include 'snippets/form_errors.html' %}    
+
+<!-- action="/login i was doing it wrong so it redirected me to the signup page  -->
+<form method="post" action="/signup" enctype="application/x-www-form-urlencoded">
+    <div>
+        <div>
+            <label for="email">Email</label>
+            <input type="email" name="email" placeholder="your@email.com">
+        </div>
+
+        <div>
+            <label for="password">password</label>
+            <input type="password" name="password" placeholder="Password">
+        </div>
+
+        <div>
+            <label for="password_confirmation">Confirm password</label>
+            <input type="password" name="password_confirmation" placeholder="Confirm password">
+        </div>
+
+
+        <button type="submit">Signup</button>
+
+    </div>
+</form>
+
+{% endblock %}

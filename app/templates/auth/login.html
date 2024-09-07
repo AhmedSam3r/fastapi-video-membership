@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Login</h1>
+
+{% include 'snippets/form_errors.html' %}    
+
+{% if logged_in %}
+    <p>Already logged in</p>
+{%else%}
+<form method="post" action="/login" enctype="application/x-www-form-urlencoded">
+    <div>
+        <div>
+            <label for="email">Email</label>
+            <input type="email" name="email" placeholder="your@email.com">
+        </div> 
+
+        <div>
+            <label for="password">password</label>
+            <input type="password" name="password" placeholder="Password">    
+        </div>
+        
+        <div>
+            <input type="hidden" name="next" value="{{next}}">
+        </div>
+
+        <button type="submit">Login</button>
+
+    </div>
+</form>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Add Video</h1>
+
+{% include 'snippets/form_errors.html' %}    
+
+<form method="post" enctype="application/x-www-form-urlencoded">
+    <div>
+        <div>
+            <label for="title">title</label>
+            <input type="text" name="title" id="title" placeholder="Your Video title" value="{% if title %} {{ title }} {% endif %}">
+        </div> 
+
+        <div>
+            <label for="url">Youtube link</label>
+            <input type="text" name="url" id="url" placeholder="https://www.youtube.com/watch?v=KQ-u4RcFLBY" value="{% if url %} {{ url }} {% endif %}">
+        </div> 
+        
+
+        <button type="submit">Add Video</button>
+
+    </div>
+</form>
+
+{% endblock %}

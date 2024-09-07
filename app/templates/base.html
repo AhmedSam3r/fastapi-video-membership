@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{% block title %} Video Membership {% endblock %}</title>
+    </head>
+    <body>
+        {% include 'snippets/nav.html' %}
+        {% block content %}
+        <h1>Hello World</h1>
+        {% endblock %}
+    </body>
+
+    <script>
+        // this script is like pip install youtube-player
+        var tag = document.createElement("script")
+        // it is a javascript script 
+        tag.src = "https://www.youtube.com/iframe_api"
+        // will get us an array of elements which has the script tag and at least will get the current script tag we're in
+        var firstScriptTag = document.getElementsByTagName("script")[0]
+        // firstScriptTag.parentNode will get the body tag and then then insert before it the firstscripttag
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag)
+
+    </script>
+
+</html>

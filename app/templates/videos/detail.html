@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Video: {{ host_id }}</h1>
+<h2>starting at:: {{start_time}} SEC</h2>
+
+{{ video }}
+
+
+    <!-- {% include "videos/renderers/youtube.html" %} -->
+<!-- <div id="yt-video-{{ host_id }}"></div> -->
+<div id="yt-video" data-video-id="{{ host_id }}" data-start-time="{{ start_time }}"></div>
+
+
+<div>
+    <code>{{ video.render() }}</code>
+</div>
+
+<script src="https://www.youtube.com/iframe_api"></script>
+<script>
+    //https://developers.google.com/youtube/player_parameters
+    // var youtubeVideoDiv = document.getElementById("yt-video-{{ host_id }}");
+    var youtubeVideoDiv = document.getElementById("yt-video");
+    if (youtubeVideoDiv){
+        var videoId = youtubeVideoDiv.getAttribute("data-video-id")
+        console.log('hello inside script detail');
+        var initialStartTime = parseInt(youtubeVideoDiv.getAttribute("data-start-time")|| 15) 
+        var player;
+        var currentTime;
+        var isPlaying;
+        var monitorTimeOut;
+        var monitorTimeinterval = 1000; // ms
+        // var videoId = '{{ host_id }}';
+        var timeSinceLastSaved = 0;
+        var timeIntervalForSave = 5000;
+        var watchEventEndpoint = "/events/watch-event"
+
+        function onYouTubeIframeAPIReady() {
+            console.log("hello onYoutubeIframeAPIReady from detail");
+            // player = new YT.Player('yt-video-{{ host_id }}', {
+            player = new YT.Player('yt-video', {
+                height: '390',
+                width: '640',
+                videoId: videoId,
+                playerVars: {
+                    'modestbranding': 1, // a toggle that hides the youtube word from the video bar if 1 (true) else it shows it
+                    'autoplay': 1,
+                    'start': initialStartTime, // in seconds
+                    'playsinline': 1,
+                    'controls': 1
+
+                },
+                events: {
+                    onReady: onPlayReady,
+                    onStateChange: onPlayerStateChange
+                }
+            });
+        }
+    }
+
+    function onPlayReady(event){
+        console.log('onPlayReady',  event);
+        console.log('player is ready');
+        console.log(player);
+        player.playVideo(); //  may or maynot work based on the browser
+        // player.seekTo(initialStartTime);
+    }
+
+    function monitorCurrentPlayback(){
+        currentTime = player.getCurrentTime()
+        console.log('Current time = ', currentTime)
+        timeSinceLastSaved += monitorTimeinterval
+        console.log(timeSinceLastSaved, monitorTimeinterval)
+        if (isPlaying){
+            // to hard reset stop displaying the time, since it get displayed after isplaying is true and stop afterwards from displaying it
+            monitorTimeOut = setTimeout(monitorCurrentPlayback, monitorTimeinterval)
+        }
+
+        if (timeSinceLastSaved > timeIntervalForSave)[
+            storeWatchEvent()
+        ]
+    }
+
+    function onPlayerStateChange(event){
+        // console.log('onPlayerStateChange' , event);
+        isPlaying = false;
+        if (event.data == YT.PlayerState.PLAYING){
+            console.log("is playing");
+            isPlaying = true;
+            monitorCurrentPlayback()
+        }
+        else if (event.data == YT.PlayerState.PAUSED){
+            console.log("is paused");
+            clearTimeout(monitorTimeOut);
+            monitorCurrentPlayback();
+            storeWatchEvent();
+        }
+        else if (event.data == YT.PlayerState.BUFFERING){
+            console.log("is buffering");
+            clearTimeout(monitorTimeOut);
+            monitorCurrentPlayback()
+        }
+
+    }
+
+    function storeWatchEvent(){
+        var duration = player.getDuration()
+        complete_threshold = (duration * (98/100)) 
+        console.log('initialStartTime', initialStartTime);
+        var data = {
+            end_time: currentTime,
+            start_time: initialStartTime,
+            path: window.location.pathname,
+            duration: player.getDuration(),
+            host_id: videoId,
+            complete: currentTime >= complete_threshold,
+        }
+        timeSinceLastSaved = 0;
+        console.log('Saving storewatchevent ', data);
+
+        // send post data
+        var reqOptions = {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
+        }
+        fetch(watchEventEndpoint, reqOptions)
+        .then(response=>response.json())
+        .then(data=>{
+            console.log("success", data);
+        })
+        .catch(err => {
+            // fetchtoan error endpoint
+            timeSinceLastSaved = 0
+            console.log("error occured ", err);
+        })
+    }
+</script>
+
+{% endblock %}
+
+
